@@ -1,8 +1,7 @@
 # docker-compose.yml
 services:
   traefik:
-   # name:
-   #   - "traefik"
+   container_name: traefik
     image: traefik:v3.7
     ports:
       - "80:80"
