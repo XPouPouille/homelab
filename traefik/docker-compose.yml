@@ -1,0 +1,23 @@
+# docker-compose.yml
+services:
+  traefik:
+   # name:
+   #   - "traefik"
+    image: traefik:v3.7
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      # permet de lire les labels des autres dockers
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
