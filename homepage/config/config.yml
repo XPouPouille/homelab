@@ -1,0 +1,97 @@
+---
+# Homer Dashboard Configuration
+# Doc: https://github.com/bastienwirtz/homer
+# Sections "Auto-Discovered" and "Custom Links" are managed by homer-manager — do not edit manually.
+
+title: "Home Lab"
+subtitle: "Services Dashboard"
+logo: "logo.png"
+
+header: true
+footer: false
+
+columns: 3
+connectivityCheck: true
+
+theme: default
+colors:
+  light:
+    highlight-primary: "#3367d6"
+    highlight-secondary: "#4f94ef"
+    highlight-hover: "#5a8dee"
+    background: "#f2f2f2"
+    card-background: "#ffffff"
+    text: "#363636"
+    text-header: "#ffffff"
+    text-title: "#303030"
+    text-subtitle: "#424242"
+    card-shadow: rgba(0, 0, 0, 0.1)
+    link: "#3273dc"
+    link-hover: "#363636"
+  dark:
+    highlight-primary: "#3367d6"
+    highlight-secondary: "#4f94ef"
+    highlight-hover: "#5a8dee"
+    background: "#131313"
+    card-background: "#2b2b2b"
+    text: "#eaeaea"
+    text-header: "#ffffff"
+    text-title: "#fafafa"
+    text-subtitle: "#f2f2f2"
+    card-shadow: rgba(0, 0, 0, 0.4)
+    link: "#3273dc"
+    link-hover: "#ffdd57"
+
+message:
+  style: "is-dark"
+  title: "Welcome"
+  icon: "fa fa-home"
+  content: "Home Lab dashboard — all services in one place."
+
+links:
+  - name: "GitHub"
+    icon: "fab fa-github"
+    url: "https://github.com"
+    target: "_blank"
+  - name: "Link Manager"
+    icon: "fas fa-sliders-h"
+    url: "http://localhost:52001"
+    target: "_blank"
+
+services:
+  - name: "Infrastructure"
+    icon: "fas fa-server"
+    items:
+      - name: "Portainer"
+        logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/portainer.png"
+        subtitle: "Docker management"
+        tag: "docker"
+        url: "https://localhost:9443"
+        target: "_blank"
+
+      - name: "Traefik"
+        logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik.png"
+        subtitle: "Reverse proxy"
+        tag: "proxy"
+        url: "http://localhost:8080"
+        target: "_blank"
+
+  - name: "Network"
+    icon: "fas fa-network-wired"
+    items:
+      - name: "WG-Easy"
+        logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/wireguard.png"
+        subtitle: "WireGuard VPN"
+        tag: "vpn"
+        url: "http://localhost:51821"
+        target: "_blank"
+
+  - name: "Tools"
+    icon: "fas fa-tools"
+    items:
+      - name: "Homer Manager"
+        logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/homer.png"
+        subtitle: "Add or remove dashboard links"
+        tag: "admin"
+        url: "http://localhost:52001"
+        target: "_blank"
