@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Homer Manager</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body { background: #f2f2f2; min-height: 100vh; }
+    .hero { background: #3367d6; }
+    .card { transition: box-shadow .2s; }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+    .service-logo { width: 36px; height: 36px; object-fit: contain; border-radius: 4px; }
+    .logo-placeholder { width: 36px; height: 36px; display:flex; align-items:center; justify-content:center; background:#e8e8e8; border-radius:4px; color:#999; }
+    #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; min-width: 240px; display: none; }
+    .tabs li { cursor: pointer; }
+    .media-right .delete { margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body py-4">
+    <div class="container">
+      <div class="level">
+        <div class="level-left">
+          <div>
+            <p class="title has-text-white is-4">
+              <i class="fas fa-home mr-2"></i>Homer Manager
+            </p>
+            <p class="subtitle has-text-white-ter is-6">
+              Docker auto-discovery &amp; custom link management
+            </p>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="buttons">
+            <a class="button is-light is-small" href="http://localhost:52000" target="_blank">
+              <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
+              <span>Homer Dashboard</span>
+            </a>
+            <button class="button is-white is-small" id="sync-btn" onclick="syncNow()">
+              <span class="icon"><i class="fas fa-sync-alt"></i></span>
+              <span>Sync Now</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section pt-4">
+  <div class="container">
+
+    <div class="tabs is-boxed mb-4">
+      <ul>
+        <li class="is-active" id="tab-docker" onclick="showTab('docker')">
+          <a>
+            <span class="icon is-small"><i class="fab fa-docker"></i></span>
+            <span>Docker Services</span>
+            <span class="tag is-rounded is-info ml-2" id="docker-count">0</span>
+          </a>
+        </li>
+        <li id="tab-custom" onclick="showTab('custom')">
+          <a>
+            <span class="icon is-small"><i class="fas fa-link"></i></span>
+            <span>Custom Links</span>
+            <span class="tag is-rounded is-primary ml-2" id="custom-count">0</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Docker panel -->
+    <div id="panel-docker">
+      <div class="notification is-info is-light mb-4 py-2 px-4">
+        <i class="fab fa-docker mr-1"></i>
+        Containers with label <code>homer.enable=true</code> or <code>traefik.enable=true</code> appear here automatically.
+        Sync runs every 60s.
+      </div>
+      <div id="docker-list" class="columns is-multiline">
+        <div class="column is-12 has-text-centered py-6">
+          <i class="fas fa-spinner fa-spin fa-2x has-text-grey-light"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom panel -->
+    <div id="panel-custom" style="display:none">
+      <div class="mb-4">
+        <button class="button is-primary" onclick="openModal()">
+          <span class="icon"><i class="fas fa-plus"></i></span>
+          <span>Add Link</span>
+        </button>
+      </div>
+      <div id="custom-list" class="columns is-multiline">
+        <div class="column is-12 has-text-centered py-6">
+          <i class="fas fa-spinner fa-spin fa-2x has-text-grey-light"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Add Link Modal -->
+<div class="modal" id="add-modal">
+  <div class="modal-background" onclick="closeModal()"></div>
+  <div class="modal-card" style="width:90%;max-width:520px">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Add Custom Link</p>
+      <button class="delete" aria-label="close" onclick="closeModal()"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Name <span class="has-text-danger">*</span></label>
+        <div class="control has-icons-left">
+          <input class="input" type="text" id="f-name" placeholder="My Service">
+          <span class="icon is-left"><i class="fas fa-tag"></i></span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">URL <span class="has-text-danger">*</span></label>
+        <div class="control has-icons-left">
+          <input class="input" type="url" id="f-url" placeholder="http://192.168.1.100:8080">
+          <span class="icon is-left"><i class="fas fa-globe"></i></span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Subtitle</label>
+        <div class="control">
+          <input class="input" type="text" id="f-subtitle" placeholder="Short description">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Logo URL</label>
+        <div class="control has-icons-left">
+          <input class="input" type="url" id="f-logo" placeholder="https://...">
+          <span class="icon is-left"><i class="fas fa-image"></i></span>
+        </div>
+        <p class="help">
+          Browse icons at
+          <a href="https://github.com/walkxcode/dashboard-icons" target="_blank">dashboard-icons</a>.
+          Format: <code>https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/NAME.png</code>
+        </p>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label">Tag</label>
+            <div class="control">
+              <input class="input" type="text" id="f-tag" placeholder="web, media, dev…">
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <label class="label">Group</label>
+            <div class="control">
+              <input class="input" type="text" id="f-group" value="Custom Links">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="submitLink()">
+        <span class="icon"><i class="fas fa-save"></i></span>
+        <span>Save &amp; Sync</span>
+      </button>
+      <button class="button" onclick="closeModal()">Cancel</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="notification"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function showTab(tab) {
+  ['docker','custom'].forEach(t => {
+    $('tab-'+t).classList.toggle('is-active', t === tab);
+    $('panel-'+t).style.display = t === tab ? '' : 'none';
+  });
+}
+
+function toast(msg, type = 'success') {
+  const el = $('toast');
+  el.className = `notification is-${type}`;
+  el.innerHTML = msg;
+  el.style.display = '';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.style.display = 'none', 3500);
+}
+
+function logo(src) {
+  if (src) return `<img class="service-logo" src="${src}" onerror="this.parentNode.innerHTML='<span class=logo-placeholder><i class=\\"fas fa-cube\\"></i></span>'" alt="">`;
+  return `<span class="logo-placeholder"><i class="fas fa-cube"></i></span>`;
+}
+
+function card(svc, deletable) {
+  return `
+  <div class="column is-4-widescreen is-6-desktop is-6-tablet is-12-mobile">
+    <div class="card">
+      <div class="card-content p-4">
+        <div class="media">
+          <div class="media-left">${logo(svc.logo)}</div>
+          <div class="media-content" style="overflow:hidden">
+            <p class="title is-6 mb-1">
+              ${svc.url ? `<a href="${svc.url}" target="_blank">${svc.name}</a>` : svc.name}
+            </p>
+            <p class="subtitle is-7 has-text-grey mb-1">${svc.subtitle || ''}</p>
+            <div class="tags mb-0">
+              ${svc.tag ? `<span class="tag is-info is-light is-small">${svc.tag}</span>` : ''}
+              <span class="tag is-dark is-small">${svc.source || 'manual'}</span>
+            </div>
+          </div>
+          ${deletable ? `
+          <div class="media-right">
+            <button class="delete" title="Remove link" onclick="deleteLink('${svc.id}')"></button>
+          </div>` : ''}
+        </div>
+        ${svc.url ? `<p class="is-size-7 has-text-grey-light mt-2" style="word-break:break-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${svc.url}">${svc.url}</p>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadDockerServices() {
+  const res = await fetch('/api/containers');
+  const data = await res.json();
+  $('docker-count').textContent = data.length;
+  $('docker-list').innerHTML = data.length
+    ? data.map(s => card(s, false)).join('')
+    : `<div class="column is-12"><div class="notification is-warning is-light">
+        <i class="fas fa-info-circle mr-1"></i>
+        No containers with <code>homer.enable=true</code> or <code>traefik.enable=true</code> labels found.
+        <br>Add labels to your containers to auto-discover them.
+       </div></div>`;
+}
+
+async function loadCustomLinks() {
+  const res = await fetch('/api/links');
+  const data = await res.json();
+  $('custom-count').textContent = data.length;
+  $('custom-list').innerHTML = data.length
+    ? data.map(s => card(s, true)).join('')
+    : `<div class="column is-12"><div class="notification is-light">
+        <i class="fas fa-plus-circle mr-1"></i>
+        No custom links yet. Click <strong>Add Link</strong> to add one.
+       </div></div>`;
+}
+
+function openModal() {
+  ['name','url','subtitle','logo','tag'].forEach(f => $('f-'+f).value = '');
+  $('f-group').value = 'Custom Links';
+  $('add-modal').classList.add('is-active');
+  setTimeout(() => $('f-name').focus(), 100);
+}
+
+function closeModal() {
+  $('add-modal').classList.remove('is-active');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter' && $('add-modal').classList.contains('is-active')) submitLink();
+});
+
+async function submitLink() {
+  const payload = {
+    name:     $('f-name').value.trim(),
+    url:      $('f-url').value.trim(),
+    subtitle: $('f-subtitle').value.trim(),
+    logo:     $('f-logo').value.trim(),
+    tag:      $('f-tag').value.trim(),
+    group:    $('f-group').value.trim() || 'Custom Links',
+  };
+  if (!payload.name || !payload.url) {
+    toast('Name and URL are required', 'danger');
+    return;
+  }
+  const res = await fetch('/api/links', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (res.ok) {
+    closeModal();
+    toast('<i class="fas fa-check mr-1"></i>Link added — Homer dashboard updated!');
+    loadCustomLinks();
+  } else {
+    toast('Error adding link', 'danger');
+  }
+}
+
+async function deleteLink(id) {
+  if (!confirm('Remove this link from the dashboard?')) return;
+  await fetch(`/api/links/${id}`, { method: 'DELETE' });
+  toast('<i class="fas fa-trash mr-1"></i>Link removed — Homer dashboard updated!', 'warning');
+  loadCustomLinks();
+}
+
+async function syncNow() {
+  const btn = $('sync-btn');
+  btn.classList.add('is-loading');
+  await fetch('/api/sync', { method: 'POST' });
+  btn.classList.remove('is-loading');
+  toast('<i class="fas fa-sync mr-1"></i>Synced — Homer dashboard refreshed!');
+  loadDockerServices();
+}
+
+loadDockerServices();
+loadCustomLinks();
+</script>
+</body>
+</html>
