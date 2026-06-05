@@ -55,7 +55,7 @@ links:
     target: "_blank"
   - name: "Link Manager"
     icon: "fas fa-sliders-h"
-    url: "http://localhost:52001"
+    url: "http://manager.xavierchapouille.ddns.net"
     target: "_blank"
 
 services:
@@ -73,7 +73,7 @@ services:
         logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik.png"
         subtitle: "Reverse proxy"
         tag: "proxy"
-        url: "http://localhost:8080"
+        url: "http://traefik.xavierchapouille.ddns.net"
         target: "_blank"
 
   - name: "Network"
@@ -93,5 +93,5 @@ services:
         logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/homer.png"
         subtitle: "Add or remove dashboard links"
         tag: "admin"
-        url: "http://localhost:52001"
+        url: "http://manager.xavierchapouille.ddns.net"
         target: "_blank"

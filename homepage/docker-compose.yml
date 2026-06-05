@@ -18,13 +18,13 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.entrypoints=web"
       - "homer.enable=true"
       - "homer.name=Traefik"
       - "homer.subtitle=Reverse proxy"
-      - "homer.url=http://traefik.localhost"
+      - "homer.url=http://traefik.${DOMAIN}"
       - "homer.logo=https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik.png"
       - "homer.tag=proxy"
       - "homer.group=Infrastructure"
@@ -43,8 +43,9 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homer.rule=Host(`homer.localhost`)"
+      - "traefik.http.routers.homer.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.homer.entrypoints=web"
+      - "traefik.http.routers.homer.priority=1"
       - "traefik.http.services.homer.loadbalancer.server.port=8080"
 
   homer-manager:
@@ -67,13 +68,13 @@ services:
       - homer
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homer-manager.rule=Host(`manager.localhost`)"
+      - "traefik.http.routers.homer-manager.rule=Host(`${MANAGER_SUBDOMAIN}.${DOMAIN}`)"
       - "traefik.http.routers.homer-manager.entrypoints=web"
       - "traefik.http.services.homer-manager.loadbalancer.server.port=5000"
       - "homer.enable=true"
       - "homer.name=Homer Manager"
       - "homer.subtitle=Add or remove dashboard links"
-      - "homer.url=http://localhost:52001"
+      - "homer.url=http://${MANAGER_SUBDOMAIN}.${DOMAIN}"
       - "homer.logo=https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/homer.png"
       - "homer.tag=admin"
       - "homer.group=Tools"
