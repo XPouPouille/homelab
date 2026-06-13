@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
+TEMPLATE_PATH = os.environ.get("HOMER_TEMPLATE", "/config/config.template.yml")
 CONFIG_PATH = os.environ.get("HOMER_CONFIG", "/config/config.yml")
 DATA_PATH = os.environ.get("DATA_PATH", "/data")
 CUSTOM_LINKS_FILE = os.path.join(DATA_PATH, "custom_links.json")
@@ -131,11 +132,12 @@ def _inject_domain(obj):
 
 
 def sync_homer_config():
-    if not os.path.exists(CONFIG_PATH):
-        app.logger.warning("Homer config not found: %s", CONFIG_PATH)
+    src = TEMPLATE_PATH if os.path.exists(TEMPLATE_PATH) else CONFIG_PATH
+    if not os.path.exists(src):
+        app.logger.warning("Homer config/template not found: %s", src)
         return
 
-    with open(CONFIG_PATH) as f:
+    with open(src) as f:
         config = yaml.safe_load(f) or {}
 
     config = _inject_domain(config)
@@ -243,8 +245,10 @@ def api_sync():
 
 
 if __name__ == "__main__":
+    if not os.environ.get("SECRET_KEY"):
+        app.logger.warning("SECRET_KEY not set — sessions will be lost on container restart. Set SECRET_KEY in .env.")
     if not MANAGER_PASSWORD:
-        app.logger.warning("MANAGER_PASSWORD is not set — authentication disabled!")
+        app.logger.warning("MANAGER_PASSWORD is not set — login will always fail!")
     Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
     sync_homer_config()
     t = threading.Thread(target=_background_sync, daemon=True)

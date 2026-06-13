@@ -44,6 +44,7 @@ services:
       - ./homer-manager/data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
+      - HOMER_TEMPLATE=/config/config.template.yml
       - HOMER_CONFIG=/config/config.yml
       - DATA_PATH=/data
       - SYNC_INTERVAL=60
