@@ -18,6 +18,9 @@ CONFIG_PATH = os.environ.get("HOMER_CONFIG", "/config/config.yml")
 DATA_PATH = os.environ.get("DATA_PATH", "/data")
 CUSTOM_LINKS_FILE = os.path.join(DATA_PATH, "custom_links.json")
 SYNC_INTERVAL = int(os.environ.get("SYNC_INTERVAL", "60"))
+DOMAIN = os.environ.get("DOMAIN", "")
+MANAGER_SUBDOMAIN = os.environ.get("MANAGER_SUBDOMAIN", "manager")
+DOMAIN_PLACEHOLDER = "votre-domaine.com"
 
 MANAGED_GROUP_DOCKER = "Auto-Discovered"
 MANAGED_GROUP_CUSTOM = "Custom Links"
@@ -73,6 +76,21 @@ def get_docker_services():
         return []
 
 
+def _inject_domain(obj):
+    """Recursively replace DOMAIN_PLACEHOLDER with actual DOMAIN in all string values."""
+    if not DOMAIN or DOMAIN == DOMAIN_PLACEHOLDER:
+        return obj
+    if isinstance(obj, str):
+        return obj.replace(
+            f"manager.{DOMAIN_PLACEHOLDER}", f"{MANAGER_SUBDOMAIN}.{DOMAIN}"
+        ).replace(DOMAIN_PLACEHOLDER, DOMAIN)
+    if isinstance(obj, dict):
+        return {k: _inject_domain(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_inject_domain(i) for i in obj]
+    return obj
+
+
 def sync_homer_config():
     if not os.path.exists(CONFIG_PATH):
         app.logger.warning("Homer config not found: %s", CONFIG_PATH)
@@ -80,6 +98,8 @@ def sync_homer_config():
 
     with open(CONFIG_PATH) as f:
         config = yaml.safe_load(f) or {}
+
+    config = _inject_domain(config)
 
     preserved = [s for s in config.get("services", [])
                  if s.get("name") not in MANAGED_GROUPS]

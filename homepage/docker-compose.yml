@@ -37,6 +37,8 @@ services:
       - HOMER_CONFIG=/config/config.yml
       - DATA_PATH=/data
       - SYNC_INTERVAL=60
+      - DOMAIN=${DOMAIN}
+      - MANAGER_SUBDOMAIN=${MANAGER_SUBDOMAIN}
     networks:
       - frontend
     depends_on:
