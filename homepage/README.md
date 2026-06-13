@@ -68,7 +68,7 @@ sudo nano .env
 Contenu à renseigner dans `.env` :
 
 ```env
-DOMAIN=xavierchapouille.ddns.net
+DOMAIN=votre-domaine.com
 MANAGER_SUBDOMAIN=manager
 ```
 
@@ -89,7 +89,7 @@ sudo docker compose ps
 sudo docker compose logs -f
 ```
 
-Homer accessible sur **http://xavierchapouille.ddns.net** (via Traefik)  
+Homer accessible sur **http://votre-domaine.com** (via Traefik)  
 Accès direct local : **http://localhost:52000**
 
 ---
@@ -115,8 +115,8 @@ sudo docker image prune -f
 
 | Service | Accès direct | Via Traefik |
 |---|---|---|
-| Homer (page principale) | http://localhost:52000 | http://xavierchapouille.ddns.net |
-| Homer Manager | http://localhost:52001 | http://manager.xavierchapouille.ddns.net |
+| Homer (page principale) | http://localhost:52000 | http://votre-domaine.com |
+| Homer Manager | http://localhost:52001 | http://manager.votre-domaine.com |
 
 ---
 
@@ -143,7 +143,7 @@ Homer Manager synchronise toutes les **60 secondes**. Bouton **Sync Now** pour f
 
 ## Gestion manuelle des liens
 
-Ouvrir le Manager sur http://manager.xavierchapouille.ddns.net, onglet **Custom Links**, bouton **Add Link**.  
+Ouvrir le Manager sur http://manager.votre-domaine.com, onglet **Custom Links**, bouton **Add Link**.  
 Les liens sont sauvegardés dans `homer-manager/data/custom_links.json` et écrits dans `config/config.yml`.
 
 ---
