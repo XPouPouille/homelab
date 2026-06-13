@@ -5,7 +5,8 @@ Self-hosted dashboard powered by [Homer](https://github.com/bastienwirtz/homer),
 - **Auto-discovers** Docker containers labelled with `homer.enable=true` or `traefik.enable=true`
 - Provides a **web UI** to add/remove custom links manually
 - Syncs changes directly into Homer's config (Homer reloads automatically)
-- Routed via **Traefik** — Homer is the main landing page on the public domain
+- Routé via **Traefik** (installé séparément) sur le réseau Docker `frontend`
+- Homer est la page principale sur le domaine public
 
 ## Configuration du domaine
 
@@ -76,9 +77,7 @@ Les liens sont sauvegardés dans `homer-manager/data/custom_links.json` et écri
 homepage/
 ├── .env.example              # Template variables d'environnement (commité)
 ├── .env                      # Valeurs réelles — IGNORÉ par git (ne pas committer)
-├── docker-compose.yml        # Tous les services
-├── traefik/
-│   └── traefik.yml           # Config statique Traefik
+├── docker-compose.yml        # Homer + Homer Manager (Traefik géré séparément)
 ├── config/
 │   └── config.yml            # Config Homer (mise à jour auto par homer-manager)
 └── homer-manager/
