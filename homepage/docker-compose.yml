@@ -18,10 +18,20 @@ services:
       - frontend
     labels:
       - "traefik.enable=true"
+      # Redirect HTTP → HTTPS
       - "traefik.http.routers.homer.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.homer.entrypoints=web"
-      - "traefik.http.routers.homer.priority=1"
+      - "traefik.http.routers.homer.middlewares=redirect-https"
+      # HTTPS
+      - "traefik.http.routers.homer-secure.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.homer-secure.entrypoints=websecure"
+      - "traefik.http.routers.homer-secure.tls=true"
+      - "traefik.http.routers.homer-secure.tls.certresolver=${CERT_RESOLVER}"
+      - "traefik.http.routers.homer-secure.priority=1"
       - "traefik.http.services.homer.loadbalancer.server.port=8080"
+      # Middleware redirect (défini une fois, réutilisé par tous)
+      - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-https.redirectscheme.permanent=true"
 
   homer-manager:
     build: ./homer-manager
@@ -45,6 +55,13 @@ services:
       - homer
     labels:
       - "traefik.enable=true"
+      # Redirect HTTP → HTTPS
       - "traefik.http.routers.homer-manager.rule=Host(`${MANAGER_SUBDOMAIN}.${DOMAIN}`)"
       - "traefik.http.routers.homer-manager.entrypoints=web"
+      - "traefik.http.routers.homer-manager.middlewares=redirect-https"
+      # HTTPS
+      - "traefik.http.routers.homer-manager-secure.rule=Host(`${MANAGER_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.homer-manager-secure.entrypoints=websecure"
+      - "traefik.http.routers.homer-manager-secure.tls=true"
+      - "traefik.http.routers.homer-manager-secure.tls.certresolver=${CERT_RESOLVER}"
       - "traefik.http.services.homer-manager.loadbalancer.server.port=5000"

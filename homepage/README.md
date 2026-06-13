@@ -70,7 +70,12 @@ Contenu à renseigner dans `.env` :
 ```env
 DOMAIN=votre-domaine.com
 MANAGER_SUBDOMAIN=manager
+CERT_RESOLVER=letsencrypt
 ```
+
+- `DOMAIN` : domaine public (DDNS ou domaine fixe)
+- `MANAGER_SUBDOMAIN` : préfixe pour l'interface de gestion (défaut : `manager`)
+- `CERT_RESOLVER` : nom du certresolver configuré dans Traefik — vérifier dans `traefik.yml` la clé `certificatesResolvers.<nom>`
 
 > `.env` est ignoré par git — ne jamais committer ce fichier.
 
@@ -89,7 +94,8 @@ sudo docker compose ps
 sudo docker compose logs -f
 ```
 
-Homer accessible sur **http://votre-domaine.com** (via Traefik)  
+Homer accessible sur **https://votre-domaine.com** (via Traefik, certificat auto Let's Encrypt)  
+HTTP redirige automatiquement vers HTTPS.  
 Accès direct local : **http://localhost:52000**
 
 ---
@@ -115,8 +121,8 @@ sudo docker image prune -f
 
 | Service | Accès direct | Via Traefik |
 |---|---|---|
-| Homer (page principale) | http://localhost:52000 | http://votre-domaine.com |
-| Homer Manager | http://localhost:52001 | http://manager.votre-domaine.com |
+| Homer (page principale) | http://localhost:52000 | https://votre-domaine.com |
+| Homer Manager | http://localhost:52001 | https://manager.votre-domaine.com |
 
 ---
 
@@ -143,7 +149,7 @@ Homer Manager synchronise toutes les **60 secondes**. Bouton **Sync Now** pour f
 
 ## Gestion manuelle des liens
 
-Ouvrir le Manager sur http://manager.votre-domaine.com, onglet **Custom Links**, bouton **Add Link**.  
+Ouvrir le Manager sur https://manager.votre-domaine.com, onglet **Custom Links**, bouton **Add Link**.  
 Les liens sont sauvegardés dans `homer-manager/data/custom_links.json` et écrits dans `config/config.yml`.
 
 ---

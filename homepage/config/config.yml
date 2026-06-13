@@ -55,7 +55,7 @@ links:
     target: "_blank"
   - name: "Link Manager"
     icon: "fas fa-sliders-h"
-    url: "http://manager.votre-domaine.com"
+    url: "https://manager.votre-domaine.com"
     target: "_blank"
 
 services:
@@ -73,7 +73,7 @@ services:
         logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik.png"
         subtitle: "Reverse proxy"
         tag: "proxy"
-        url: "http://traefik.votre-domaine.com"
+        url: "https://traefik.votre-domaine.com"
         target: "_blank"
 
   - name: "Network"
@@ -93,5 +93,5 @@ services:
         logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/homer.png"
         subtitle: "Add or remove dashboard links"
         tag: "admin"
-        url: "http://manager.votre-domaine.com"
+        url: "https://manager.votre-domaine.com"
         target: "_blank"
