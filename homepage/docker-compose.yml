@@ -1,33 +1,8 @@
 networks:
-  proxy:
-    name: proxy
+  frontend:
+    external: true
 
 services:
-
-  traefik:
-    image: traefik:v3.0
-    container_name: traefik
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "8080:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.entrypoints=web"
-      - "homer.enable=true"
-      - "homer.name=Traefik"
-      - "homer.subtitle=Reverse proxy"
-      - "homer.url=http://traefik.localhost"
-      - "homer.logo=https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik.png"
-      - "homer.tag=proxy"
-      - "homer.group=Infrastructure"
 
   homer:
     image: b4bz/homer:latest
@@ -40,11 +15,12 @@ services:
     environment:
       - INIT_ASSETS=0
     networks:
-      - proxy
+      - frontend
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homer.rule=Host(`homer.localhost`)"
+      - "traefik.http.routers.homer.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.homer.entrypoints=web"
+      - "traefik.http.routers.homer.priority=1"
       - "traefik.http.services.homer.loadbalancer.server.port=8080"
 
   homer-manager:
@@ -62,18 +38,11 @@ services:
       - DATA_PATH=/data
       - SYNC_INTERVAL=60
     networks:
-      - proxy
+      - frontend
     depends_on:
       - homer
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homer-manager.rule=Host(`manager.localhost`)"
+      - "traefik.http.routers.homer-manager.rule=Host(`${MANAGER_SUBDOMAIN}.${DOMAIN}`)"
       - "traefik.http.routers.homer-manager.entrypoints=web"
       - "traefik.http.services.homer-manager.loadbalancer.server.port=5000"
-      - "homer.enable=true"
-      - "homer.name=Homer Manager"
-      - "homer.subtitle=Add or remove dashboard links"
-      - "homer.url=http://localhost:52001"
-      - "homer.logo=https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/homer.png"
-      - "homer.tag=admin"
-      - "homer.group=Tools"

@@ -5,102 +5,106 @@ Self-hosted dashboard powered by [Homer](https://github.com/bastienwirtz/homer),
 - **Auto-discovers** Docker containers labelled with `homer.enable=true` or `traefik.enable=true`
 - Provides a **web UI** to add/remove custom links manually
 - Syncs changes directly into Homer's config (Homer reloads automatically)
-- Fully compatible with **Traefik** as a reverse proxy
+- Routé via **Traefik** (installé séparément) sur le réseau Docker `frontend`
+- Homer est la page principale sur le domaine public
+
+## Configuration du domaine
+
+Copier `.env.example` en `.env` et renseigner le domaine :
+
+```bash
+cp .env.example .env
+# Éditer .env et définir DOMAIN=votre-domaine.com
+```
+
+Le fichier `.env` est ignoré par git — ne jamais committer les vraies valeurs.
 
 ## Services
 
-| Service | Direct URL | Traefik URL |
+| Service | Accès direct | Via Traefik |
 |---|---|---|
-| Homer dashboard | http://localhost:52000 | http://homer.localhost |
-| Homer Manager | http://localhost:52001 | http://manager.localhost |
-| Traefik dashboard | http://localhost:8080 | http://traefik.localhost |
+| Homer (page principale) | http://localhost:52000 | http://${DOMAIN} |
+| Homer Manager | http://localhost:52001 | http://manager.${DOMAIN} |
+| Traefik dashboard | http://localhost:8080 | http://traefik.${DOMAIN} |
 
 ## Quick Start
 
 ```bash
-# Clone
+# Cloner le dépôt
 git clone https://github.com/XPouPouille/homelab.git
-cd homelab
+cd homelab/homepage
 
-# Start all services
+# Configurer le domaine
+cp .env.example .env
+# Éditer .env : DOMAIN=monsite.ddns.net
+
+# Démarrer tous les services
 docker compose up -d
 
-# Check logs
+# Vérifier les logs
 docker compose logs -f
 ```
 
-Homer dashboard: **http://localhost:52000**
-Link Manager UI: **http://localhost:52001**
+Homer accessible sur **http://${DOMAIN}** (remplacer `${DOMAIN}` par la valeur dans `.env`).
 
 ## Auto-discovery
 
-Add these labels to any container to make it appear on the dashboard:
+Ajouter ces labels à n'importe quel container pour qu'il apparaisse sur le dashboard :
 
 ```yaml
 labels:
   - "homer.enable=true"
-  - "homer.name=My App"
-  - "homer.subtitle=Short description"
-  - "homer.url=http://localhost:PORT"
-  - "homer.logo=https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/my-app.png"
+  - "homer.name=Mon App"
+  - "homer.subtitle=Courte description"
+  - "homer.url=http://mon-app.mondomaine.fr"
+  - "homer.logo=https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/mon-app.png"
   - "homer.tag=web"
-  - "homer.group=My Group"    # optional, default: Auto-Discovered
+  - "homer.group=Mon Groupe"    # optionnel, défaut: Auto-Discovered
 ```
 
-If the container already has `traefik.enable=true` with a `Host(...)` rule, the URL is extracted automatically.
+Si le container a déjà `traefik.enable=true` avec une règle `Host(...)`, l'URL est extraite automatiquement.
 
-Homer Manager syncs every **60 seconds**. Click **Sync Now** in the UI to force immediate refresh.
+Homer Manager synchronise toutes les **60 secondes**. Bouton **Sync Now** pour forcer.
 
-## Manual link management
+## Gestion manuelle des liens
 
-Open the Manager UI at http://localhost:52001, switch to the **Custom Links** tab, and click **Add Link**.
-Links are saved in `homer-manager/data/custom_links.json` and written to `config/config.yml`.
+Ouvrir le Manager sur http://manager.${DOMAIN}, onglet **Custom Links**, bouton **Add Link**.
+Les liens sont sauvegardés dans `homer-manager/data/custom_links.json` et écrits dans `config/config.yml`.
 
-## Traefik integration
-
-All services are routed by Traefik via `*.localhost` domains.  
-To use real domains, replace `homer.localhost` / `manager.localhost` / `traefik.localhost`
-with your actual hostnames in `docker-compose.yml`.
-
-Point your DNS or `/etc/hosts` to the host machine:
-```
-192.168.1.X  homer.localhost manager.localhost traefik.localhost
-```
-
-## File structure
+## Structure des fichiers
 
 ```
-.
-├── docker-compose.yml          # All services
-├── traefik/
-│   └── traefik.yml             # Traefik static config
+homepage/
+├── .env.example              # Template variables d'environnement (commité)
+├── .env                      # Valeurs réelles — IGNORÉ par git (ne pas committer)
+├── docker-compose.yml        # Homer + Homer Manager (Traefik géré séparément)
 ├── config/
-│   └── config.yml              # Homer config (auto-updated by manager)
+│   └── config.yml            # Config Homer (mise à jour auto par homer-manager)
 └── homer-manager/
     ├── Dockerfile
-    ├── app.py                  # Flask API + Docker discovery
+    ├── app.py                # API Flask + découverte Docker
     ├── requirements.txt
-    ├── data/                   # custom_links.json (auto-created)
+    ├── data/                 # custom_links.json (créé automatiquement, ignoré par git)
     └── templates/
-        └── index.html          # Management UI
+        └── index.html        # Interface de gestion
 ```
 
-## Add a static service (manual config edit)
+## Ajouter un service statique
 
-Edit `config/config.yml` and add under the relevant `services` group:
+Éditer `config/config.yml` sous le groupe `services` concerné :
 
 ```yaml
-- name: "My App"
-  logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/my-app.png"
+- name: "Mon App"
+  logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/mon-app.png"
   subtitle: "Description"
   tag: "app"
-  url: "http://localhost:PORT"
+  url: "http://mon-app.mondomaine.fr"
   target: "_blank"
 ```
 
-> **Note:** Groups named `Auto-Discovered` and `Custom Links` are managed by Homer Manager — manual edits to those groups will be overwritten on the next sync.
+> **Attention :** Les groupes `Auto-Discovered` et `Custom Links` sont gérés par Homer Manager — les modifications manuelles seront écrasées à la prochaine synchronisation.
 
-## Icons
+## Icônes
 
-Find icons at: https://github.com/walkxcode/dashboard-icons  
-CDN pattern: `https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/NAME.png`
+Bibliothèque d'icônes : https://github.com/walkxcode/dashboard-icons  
+Pattern CDN : `https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/NOM.png`
