@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Homer Manager — Connexion</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    html, body { height: 100%; background: #f2f2f2; }
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 0 1rem;
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .login-header .icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #3367d6;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="icon-wrap">
+        <span class="icon has-text-white is-large">
+          <i class="fas fa-home fa-lg"></i>
+        </span>
+      </div>
+      <p class="title is-4">Homer Manager</p>
+      <p class="subtitle is-6 has-text-grey">Interface d'administration</p>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        {% if error %}
+        <div class="notification is-danger is-light py-2 mb-4">
+          <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+          <div class="field">
+            <label class="label">Identifiant</label>
+            <div class="control has-icons-left">
+              <input class="input" type="text" name="username"
+                     placeholder="admin" autofocus autocomplete="username" required>
+              <span class="icon is-left"><i class="fas fa-user"></i></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Mot de passe</label>
+            <div class="control has-icons-left">
+              <input class="input" type="password" name="password"
+                     placeholder="••••••••" autocomplete="current-password" required>
+              <span class="icon is-left"><i class="fas fa-lock"></i></span>
+            </div>
+          </div>
+
+          <div class="field mt-5">
+            <button class="button is-primary is-fullwidth" type="submit">
+              <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+              <span>Se connecter</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <p class="has-text-centered has-text-grey is-size-7 mt-4">
+      Identifiants définis dans le fichier <code>.env</code>
+    </p>
+  </div>
+</div>
+</body>
+</html>

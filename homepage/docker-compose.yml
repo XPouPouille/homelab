@@ -49,6 +49,9 @@ services:
       - SYNC_INTERVAL=60
       - DOMAIN=${DOMAIN}
       - MANAGER_SUBDOMAIN=${MANAGER_SUBDOMAIN}
+      - MANAGER_USER=${MANAGER_USER}
+      - MANAGER_PASSWORD=${MANAGER_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
     networks:
       - frontend
     depends_on:
